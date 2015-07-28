@@ -33,12 +33,15 @@ print "Beginning gravity turn.".
 
 function CalculatePitch {
   parameter alt.
-  if(alt < 70000) {
-    set p to sqrt((90^2)*(1 - ((alt^2) / (70000^2)))).
+  parameter flatAlt.
+
+  if(alt < flatAlt) {
+    set p to sqrt((90^2)*(1 - ((alt^2) / (flatAlt^2)))).
   }
   else {
     set p to 0.
   }
+
   return p.
 }
 
@@ -65,7 +68,7 @@ function AutoStage {
   parameter delta.
 
   if(lastThrust < 0) {
-    lastThrust = ship:maxthrust.
+    set lastThrust to ship:maxthrust.
   }
 
   if(ship:maxthrust < lastThrust - delta) {
@@ -82,7 +85,7 @@ function AutoStage {
 set lastThrust to ship:maxthrust.
 until apoapsis > 80000 {
   // pitch!
-  set pitch to CalculatePitch(ship:altitude).
+  set pitch to CalculatePitch(ship:altitude, 40000).
   lock steering to heading(90, pitch).
 
   // aim for a TWR of 2.0 for the entire ascention
@@ -98,6 +101,11 @@ until apoapsis > 80000 {
 lock throttle to 0.
 print "Apoapsis reached!".
 
+WHEN altitude > 70000 THEN {
+  PRINT "Activating power and communications".
+  AG1 ON.
+}
+
 print "Calculating circularization burn....".
 set r_a to ship:apoapsis + ship:body:radius.
 set r_p to ship:periapsis + ship:body:radius.
@@ -108,7 +116,7 @@ set circTime to circDV / circAccel.
 print "And take " + round(circTime) + " seconds!".
 
 print "Creating maneuver node...".
-set circNode to node(time:seconds + eta:apoapsis - (circTime / 2), 0, 0, circDV).
+set circNode to node(time:seconds + eta:apoapsis, 0, 0, circDV).
 add circNode.
 
 print "Preparing for circularization burn...".
@@ -116,29 +124,22 @@ lock steering to heading(90, 0).
 
 print "Waiting until circularization burn start in " + round(eta:apoapsis - (circTime / 2)) + " s...".
 
-wait until eta:apoapsis < ((circTime / 2) + 10).
-print "Circularization burn in T-10s".
+//wait until eta:apoapsis < ((circTime / 2) + 10).
+//print "Circularization burn in T-10s".
 
 wait until eta:apoapsis < (circTime / 2).
 
 print "Begin circularization burn!".
-//lock throttle to 1.
-//set lastThrust to ship:maxthrust.
-//until ship:periapsis > 79999 {
-//  // check to see if we need to stage
-//  if ship:maxthrust < lastThrust - 10 {
-//    print "Thrust profile changed, staging!".
-//    lock throttle to 0.
-//    wait 0.5.
-//    stage.
-//    wait 0.5.
-//    lock throttle to 1.
-//  }
-//  set lastThrust to ship:maxthrust.
-//
-//  wait 0.1.
-//}
-//print "Circularization complete!".
+lock throttle to 1.
+set startDV to circDV.
+set lastThrust to ship:maxthrust.
+until ship:periapsis > 70000 {
+  lock steering to circNode.
+
+  AutoStage(0, 10).
+  wait 0.1.
+}
+print "Circularization complete!".
 
 set ship:control:pilotmainthrottle to 0.
 print "<TERMINATED>".
