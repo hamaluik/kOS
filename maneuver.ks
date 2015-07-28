@@ -15,7 +15,7 @@ print "Aligning with maneuver prograde.".
 rcs on.
 sas on.
 lock steering to mNode:deltav.
-until vang(ship:facing, mNode:deltav) < 2.5 {
+until vang(ship:facing, mNode:deltav) < 2 {
   wait 0.1.
 }
 print "Ship aligned.".
@@ -45,7 +45,7 @@ until burnTime <= 1 {
   if(ship:stage > stageLimit) {
     AutoStage(10).
   }
-  //wait 0.1.
+  wait 0.001.
 }
 
 print "Burn almost complete, throttling back".
@@ -71,6 +71,7 @@ until false {
   if(ship:stage > stageLimit) {
     AutoStage(10).
   }
+  wait 0.001.
 }
 lock throttle to 0.
 

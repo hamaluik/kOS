@@ -88,7 +88,7 @@ until ship:apoapsis >= desiredAltitude {
     AutoStage(10).
   }
   
-  //wait 0.1.
+  wait 0.001.
 }
 set targetThrottle to 0.
 print "Ascent complete."
