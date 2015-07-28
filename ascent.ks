@@ -47,8 +47,37 @@ when vang(ship:facing, ship:srfprograde) < 2.5 then {
 print "Ascending to " + round(desiredAltitude / 1000, 1) + " km.".
 until ship:apoapsis >= desiredAltitude {
   if (ship:altitude <= 35000) {
+    // figure out our liquid and solid fuel thrusts
+    set local maxLiquidThrust to 0.
+    set local maxSolidThrust to 0.
+    list engines in engs.
+    until i = engs:length {
+      if engs[i]:ignition {
+        // figure out what type of engine it is
+        if(engs[i]:wetmass <> engs[i]:drymass) {
+          // it is a solid rocket
+          set maxSolidThrust to maxSolidThrust + engs[i]:maxthrust.
+        }
+        else {
+          // it is a liquid rocket
+          set maxLiquidThrust to maxLiquidThrust + engs[i]:maxthrust.
+        }
+      }.
+      set i to i + 1.
+    }
+    
+    // now calculate our throttle to maintain a TWR of 2.0
+    if(maxLiquidThrust < 0.1) {
+      // if we are't using liquid engines, turn the ignition off.
+      // we'll be launching anyway
+      set targetThrottle to 0.
+    }
+    else {
+      set targetThrottle to ((2 * ship:mass * LocalG()) - maxSolidThrust) / maxLiquidThrust.
+    }
+    
     // aim for a TWR of 2.0 in the lower atmosphere
-    set targetThrottle to (2 * LocalG() * ship:mass / ship:maxthrust). 
+    //set targetThrottle to (2 * LocalG() * ship:mass / ship:maxthrust). 
   }
   else {
     set targetThrottle to 1.
