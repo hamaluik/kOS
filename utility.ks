@@ -1,35 +1,12 @@
-// display the splash screen
-function SplashScreen {
-  clearscreen.
-  print "+------------------------------------------------+".
-  print "|                                       ___      |".
-  print "|                                 |     | |      |".
-  print "|                                /_\    | |      |".
-  print "|                               |   |===|-|      |".
-  print "|   Marvin Flight Computer      |  o|   | |      |".
-  print "|           v1.0.0              |___|   |K|      |".
-  print "|                              /_____\  |S|      |".
-  print "|         Written by:         | M     | |P|      |".
-  print "|       Kenton Hamaluik       | A     | | |      |".
-  print "|         2015-07-28          | R     |=| |      |".
-  print "|                             | V     | | |      |".
-  print "|                             |_______| |_|      |".
-  print "|                               (---)   | |      |".
-  print "|                               /---\   | |      |".
-  print "|                            ___________|_|_     |".
-  print "+------------------------------------------------+".
-}
-
-function ShowHeader {
-  clearscreen.
-  print "+------------------------------------------------+".
-  print "| Marvin Flight Computer                  v1.0.0 |".
-  print "+------------------------------------------------+".
-}
-
 set lastThrust to -1.
 function AutoStage {
+  parameter minStage.
   parameter delta.
+
+  if(stage:number <= minStage) {
+    set lastThrust to ship:maxthrust.
+    return.
+  }
 
   if(lastThrust < 0) {
     set lastThrust to ship:maxthrust.
@@ -37,11 +14,12 @@ function AutoStage {
 
   if(ship:maxthrust < lastThrust - delta) {
     print "Thrust profile changed, staging!".
+    set preThrottle to throttle.
     lock throttle to 0.
     wait 0.5.
     stage.
     wait 0.5.
-    lock throttle to 1.
+    lock throttle to preThrottle.
   }
   set lastThrust to ship:maxthrust.
 }
@@ -68,7 +46,6 @@ function ShipTWR {
 }
 
 function LocalG {
-  set mth to ship:maxthrust.
   set r to ship:altitude + ship:body:radius.
   return ship:body:mu / r / r.
 }

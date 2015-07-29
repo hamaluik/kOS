@@ -2,18 +2,25 @@ declare parameter desiredAltitude.
 declare parameter desiredHeading.
 declare parameter stageLimit.
 
+print "Downloading libraries.".
+
+run fileutility.
+Download("utility.ks").
+run utility.
+Download("ascent.ks").
+Download("circularize.ks").
+Download("maneuver.ks").
+
 // make sure we can launch
-set terminal:width to 50.
-set terminal:height to 30.
-ShowHeader().
 if(ship:status <> "PRELAUNCH" and ship:status <> "LANDED") {
   print "ERROR: you cannot launch right now!".
-  return.
+  wait until false.
 }
 
 // run the ascent program
 print "Executing ascent program.".
-run ascent(desiredAltitude, desiredHeading, stageLimit).
+run ascent(desiredAltitude * 1000, desiredHeading, stageLimit).
+lock throttle to 0.
 
 when altitude > 70000 then {
   print "Deploying solar panels.".
@@ -25,19 +32,8 @@ when altitude > 70000 then {
 }
 
 // plan for circularization
-print "Planning circularization burn."
-
-set r_a to ship:apoapsis + ship:body:radius.
-set r_p to ship:periapsis + ship:body:radius.
-set circDV to (sqrt(body:mu / r_a) - sqrt((2 * r_p * body:mu) / (r_a * (r_p + r_a)))).
-print "Burn will consume " + round(circDV, 1) + " m/s.".
-set circAccel to ship:maxthrust / ship:mass.
-set circTime to circDV / circAccel.
-print "And take " + round(circTime, 1) + " seconds.".
-
-print "Creating circularization maneuver.".
-set circNode to node(time:seconds + eta:apoapsis, 0, 0, circDV).
-add circNode.
+print "Planning circularization burn.".
+run circularize("apoapsis").
 
 // execute the next maneuver node
 print "Executing maneuver node program.".
@@ -47,3 +43,5 @@ unlock throttle.
 
 print "Circularization complete.".
 print "Engaging manual control.".
+set ship:control:pilotmainthrottle to 0.
+sas on.
