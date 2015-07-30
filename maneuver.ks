@@ -15,7 +15,6 @@ set burnAcceleration to ship:maxthrust / ship:mass.
 set burnTime to burnDVMag / burnAcceleration.
 
 print "Aligning with maneuver prograde.".
-rcs on.
 //sas on.
 lock steering to mNode:deltav.
 wait until vang(ship:facing:forevector, mNode:deltav) < 1.
@@ -31,6 +30,8 @@ if(mNode:eta > 30) {
 
 // wait for it...
 print "Waiting to begin burn...".
+wait until (vang(ship:facing:forevector, mNode:deltav) < 1) or (mNode:eta <= (burnTime / 2)).
+warpto(time:seconds + mNode:eta - (burnTime / 2)).
 wait until mNode:eta <= (burnTime / 2).
 
 print "Burn is go!".

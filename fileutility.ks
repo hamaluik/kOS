@@ -18,17 +18,17 @@ function FileExists {
 function Download {
   parameter name.
 
-  set downloadTime to addons:rt:delay(ship) * 3.
-  set timer to 0.
+  //set downloadTime to addons:rt:delay(ship) * 3.
+  //set timer to 0.
 
-  print "Downloading '" + name + "', will take " + round(downloadTime, 1) + "s.".
+  //print "Downloading '" + name + "', will take " + round(downloadTime, 1) + "s.".
 
-  until timer >= downloadTime {
-    set start to time:seconds.
-    // if we lose connection, the download will be paused
-    wait until (time:seconds - start) > (downloadTime - timer) or not addons:rt:hasconnection(ship).
-    set timer to timer + time:seconds - start.
-  }
+  //until timer >= downloadTime {
+  //  set start to time:seconds.
+  //  // if we lose connection, the download will be paused
+  //  wait until (time:seconds - start) > (downloadTime - timer) or not addons:rt:hasconnection(ship).
+  //  set timer to timer + time:seconds - start.
+  //}
 
   // delete any local copies
   if FileExists(name, 1) {
