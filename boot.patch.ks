@@ -26,15 +26,3 @@ if FileExists(patchScript, 0) {
   run patch.
   delete patch.
 }
-
-// see if there's a startup script to run
-if FileExists("startup.ks", 1) {
-  run startup.ks.
-}
-else {
-  // reboot!
-  print "No instructions, rebooting!".
-  wait until addons:rt:hasconnection(ship).
-  wait 5.
-  reboot.
-}

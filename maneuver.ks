@@ -6,7 +6,7 @@ lock throttle to 0.
 sas off.
 
 // grab our next node
-set mNode to nextnode.
+local mNode to nextnode.
 
 // figure out some information about it
 set burnDV to mNode:deltav.
@@ -32,7 +32,12 @@ if(mNode:eta > 30) {
 print "Waiting to begin burn...".
 wait until (vang(ship:facing:forevector, mNode:deltav) < 1) or (mNode:eta <= (burnTime / 2)).
 warpto(time:seconds + mNode:eta - (burnTime / 2)).
-wait until mNode:eta <= (burnTime / 2).
+until mNode:eta <= (burnTime / 2) {
+  clearscreen.
+  print round(mNode:eta - (burnTime / 2), 1) + " s until burn...".
+  wait 0.1.
+}
+//wait until mNode:eta <= (burnTime / 2).
 
 print "Burn is go!".
 lock throttle to 1.
@@ -78,7 +83,10 @@ until false {
   }
   wait 0.01.
 }
+set ship:control:pilotmainthrottle to 0.
 lock throttle to 0.
+unlock steering.
+unlock throttle.
 
 print "Maneuver burn complete!".
 remove mNode.

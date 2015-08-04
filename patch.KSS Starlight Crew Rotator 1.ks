@@ -1,3 +1,8 @@
+// general boot script
+// by Kenton Hamaluik
+// 2015-07-27
+// portions borrowed from https://github.com/gisikw/ksprogramming
+
 // chill out while we look for something to run
 set ship:control:pilotmainthrottle to 0.
 
@@ -17,7 +22,7 @@ if(ship:status = "PRELAUNCH") {
   print "Prelaunch detected!".
 
   print "Launcing to orbit!".
-  run orbit(100, 90, 0, 1.4).
+  run orbit(80, 90, 1, 1.4).
 
-  hudtext(ship:name + " is 5x5!", 1, 2, 50, green, true).
+  hudtext("Vessel Is 5x5!", 1, 2, 50, green, true).
 }

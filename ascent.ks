@@ -1,6 +1,7 @@
 declare parameter desiredAltitude.
 declare parameter desiredHeading.
 declare parameter stageLimit.
+declare parameter targetTWR.
 
 run utility.
 
@@ -30,6 +31,9 @@ stage.
 wait until altitude > 100.
 print "We have liftoff!".
 
+lock pitch to -5 * (altitude / 2000).
+lock steering to up + r(0, pitch, 180).
+
 // don't do anything until we get high enough
 wait until altitude > 2000.
 
@@ -48,6 +52,8 @@ wait until altitude > 2000.
 //  }
 //}
 
+//set targetSpeed to sqrt(ship:body:mu / (desiredAltitude + ship:body:radius)).
+
 // limit the throttle
 print "Ascending to " + round(desiredAltitude / 1000, 1) + " km.".
 until ship:apoapsis >= desiredAltitude {
@@ -57,9 +63,19 @@ until ship:apoapsis >= desiredAltitude {
   AutoStage(stageLimit, 10).
 
   // control the steering
-  set p to EllipticalPitch(ship:apoapsis, desiredAltitude).
-  print "Pitch: " + p.
-  lock steering to heading(desiredHeading, p).
+  //set p to EllipticalPitch(ship:apoapsis, desiredAltitude).
+  //set p to EllipticalPitch(ship:velocity:orbit:mag, targetSpeed).
+  //lock steering to heading(desiredHeading, p).
+  if(ship:altitude < 35000) {
+    //lock steering to ship:srfprograde.
+    lock pitch to -1 * (vang(ship:up:vector, ship:srfprograde:forevector)).
+  }
+  else {
+    //lock steering to ship:prograde.
+    lock pitch to -1 * (vang(ship:up:vector, ship:prograde:forevector)).
+  }
+  print "Pitch: " + pitch.
+  print "AoA: " + vang(ship:srfprograde:forevector, ship:facing:forevector).
   //lock steering to up + r(0, 90 - EllipticalPitch(ship:apoapsis, desiredAltitude), startRoll).
 
   // control the throttle
@@ -69,7 +85,7 @@ until ship:apoapsis >= desiredAltitude {
     print "Orbital radius: " + rAlt.
     set gAlt to ship:body:mu / rAlt / rAlt.
     print "Local gravity: " + gAlt.
-    set t to (2 * gAlt * ship:mass / ship:maxthrust).
+    set t to (targetTWR * gAlt * ship:mass / ship:maxthrust).
     print "Throttle: " + t.
     lock throttle to min(max(t, 0), 1). 
   }
