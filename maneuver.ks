@@ -22,9 +22,9 @@ print "Ship aligned.".
 
 // warp to 30s before the burn time
 print "Maneuver burn scheduled for " + round(mNode:eta - (burnTime / 2), 1) + " s from now.".
-if(mNode:eta > 30) {
-  print "Warping to 30s before start of burn.".
-  warpto(time:seconds + mNode:eta - (burnTime / 2) - 30). 
+if(mNode:eta > 10) {
+  print "Warping to 10s before start of burn.".
+  warpto(time:seconds + mNode:eta - (burnTime / 2) - 10). 
   print "Warp complete.".
 }
 

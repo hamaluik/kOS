@@ -117,14 +117,24 @@ function GetMeanAnomalyAtEccentricAnomaly {
   }
 }
 
+function RadToDeg {
+  parameter rad.
+  return rad * 180 / constant():PI.
+}
+
+function DegToRad {
+  parameter deg.
+  return deg * constant():PI / 180.
+}
+
 function MeanMotion {
   parameter orbitable.
   if(orbitable:obt:eccentricity > 1) {
     set sma to orbitable:obt:semimajoraxis.
-    return sqrt(orbitable:body:mu / abs(sma * sma * sma)).
+    return RadToDeg(sqrt(orbitable:body:mu / abs(sma * sma * sma))).
   }
   else {
-    return 2 * constant():PI / orbitable:obt:period.
+    return RadToDeg(2 * constant():PI / orbitable:obt:period).
   }
 }
 
@@ -145,9 +155,9 @@ function UTAtMeanAnomaly {
   set currentMeanAnomaly to orbitable:obt:meananomalyatepoch.
   set meanDifference to meanAnomaly - currentMeanAnomaly.
   if(orbitable:obt:eccentricity < 1) {
-    meanDifference = ClampAngle(meanDifference, constant():PI * 2).
+    set meanDifference to ClampAngle(meanDifference, constant():PI * 2).
   }
-  return UT + meanDifference / MeanMotion().
+  return time:seconds + meanDifference / MeanMotion(orbitable).
 }
 
 function TimeOfTrueAnomaly {

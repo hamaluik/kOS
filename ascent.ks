@@ -31,11 +31,12 @@ stage.
 wait until altitude > 100.
 print "We have liftoff!".
 
-lock pitch to -5 * (altitude / 2000).
+lock pitch to -5 * (ship:verticalspeed / 100).
 lock steering to up + r(0, pitch, 180).
 
 // don't do anything until we get high enough
-wait until altitude > 2000.
+wait until ship:verticalspeed > 100.
+print "Pitchover maneuver complete!".
 
 //// wait until pitch over maneuver
 //wait until altitude > 500.
@@ -69,10 +70,16 @@ until ship:apoapsis >= desiredAltitude {
   if(ship:altitude < 35000) {
     //lock steering to ship:srfprograde.
     lock pitch to -1 * (vang(ship:up:vector, ship:srfprograde:forevector)).
+    if(pitch < -45) {
+      lock pitch to -45.
+    }
   }
   else {
     //lock steering to ship:prograde.
     lock pitch to -1 * (vang(ship:up:vector, ship:prograde:forevector)).
+    if(pitch < -80) {
+      lock pitch to -80.
+    }
   }
   print "Pitch: " + pitch.
   print "AoA: " + vang(ship:srfprograde:forevector, ship:facing:forevector).
@@ -80,12 +87,17 @@ until ship:apoapsis >= desiredAltitude {
 
   // control the throttle
   print "Max thrust: " + ship:maxthrust.
-  if(ship:maxthrust > 0.001 and ship:altitude <= 35000) {
+  if(ship:maxthrust > 0.1 and ship:altitude <= 35000) {
     set rAlt to ship:altitude + ship:body:radius.
     print "Orbital radius: " + rAlt.
     set gAlt to ship:body:mu / rAlt / rAlt.
     print "Local gravity: " + gAlt.
-    set t to (targetTWR * gAlt * ship:mass / ship:maxthrust).
+    if(ship:maxthrust < 0.1) {
+      set t to 1.
+    }
+    else {
+      set t to (targetTWR * gAlt * ship:mass / ship:maxthrust).
+    }
     print "Throttle: " + t.
     lock throttle to min(max(t, 0), 1). 
   }
